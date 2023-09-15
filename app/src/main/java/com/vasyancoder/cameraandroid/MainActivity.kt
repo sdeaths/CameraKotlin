@@ -2,6 +2,7 @@ package com.vasyancoder.cameraandroid
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -70,7 +71,11 @@ class MainActivity : AppCompatActivity() {
 
         // Set up the listeners for take photo and video capture buttons
         viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
-        viewBinding.videoCaptureButton.setOnClickListener { captureVideo() }
+        viewBinding.videoCaptureButton.setOnClickListener {
+            // captureVideo()
+            val intent = Intent(this, GalleryActivity::class.java)
+            startActivity(intent)
+        }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -150,9 +155,10 @@ class MainActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview)
+                    this, cameraSelector, preview
+                )
 
-            } catch(exc: Exception) {
+            } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 

@@ -21,10 +21,17 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import com.vasyancoder.cameraandroid.databinding.ActivityMainBinding
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
@@ -126,6 +133,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
+
+        val filename = "date.txt"
+        val sdf = android.icu.text.SimpleDateFormat.getInstance()
+        val currentDate = sdf.format(Date())
+        val dir = this.filesDir
+        val fileDate = File(dir, filename)
+        try {
+            var lines = mutableListOf<String>()
+            if (fileDate.exists()) {
+                lines = fileDate.readLines().toMutableList()
+            }
+            val fos = FileOutputStream(fileDate)
+            val writer = BufferedWriter(OutputStreamWriter(fos))
+            for (el in lines) {
+                writer.write(el)
+                writer.write("\n")
+            }
+            writer.write(currentDate)
+            writer.close()
+            fos.close()
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
     }
 
     private fun requestPermissions() {
@@ -133,6 +163,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCamera() {
+        imageCapture = ImageCapture.Builder().build()
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
@@ -155,7 +187,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview
+                    this, cameraSelector, preview, imageCapture
                 )
 
             } catch (exc: Exception) {
